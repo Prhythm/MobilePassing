@@ -1,0 +1,79 @@
+body {
+    overflow: hidden;
+    background-color: #f7f7f7;
+}
+
+.demo-title {
+    font-size: 2.5em;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    width: 500px;
+    margin-left: -250px;
+    z-index: 10000;
+    text-shadow: 5px 5px 5px #ffffff;
+    text-align: center;
+}
+
+.inner-radius {
+    background-color: #ffffff;
+    margin-left: -145px;
+    margin-top: -145px;
+    padding: 40px;
+    z-index: 9999;
+}
+
+.signin-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    border-width: 5px;
+    border-style: solid;
+}
+
+.blocker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,.8);
+    /*opacity: 0;*/
+    -webkit-transition: opacity .15s linear;
+    transition: opacity .15s linear;
+    padding: 10px;
+    border-radius: 50%;
+    display: none;
+    color: white;
+    text-align: center;
+    padding-top: 95px;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+    .blocker:before {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 50px;
+        height: 50px;
+        margin-top: -25px;
+        margin-left: -25px;
+        font-size: 50px;
+        line-height: 1;
+        font-family: FontAwesome;
+        text-align: center;
+        color: #fff;
+    }
+
+.welcome {
+    display: inline-block;
+    width: 200px;
+    height: 135px;
+    font-weight: bold;
+    font-size: 1.5em;
+    text-align: center;
+    padding-top: 65px;
+}
