@@ -15,28 +15,22 @@ function extend() {
     if (prePadding < 4000) setTimeout(extend, 200);
 
 }
+function dim(data) {
+    var blocker = document.querySelector('.blocker');
+    while (blocker.firstChild) {
+        blocker.removeChild(blocker.firstChild);
+    }
+    blocker.appendChild(document.createTextNode(data.Message));
+    var memo = document.createElement('div');
+    memo.appendChild(document.createTextNode('Click to get new token!'));
+    blocker.appendChild(memo);
+    blocker.style.display = 'block';
+}
 function pageLoad() {
     MP.init({
         appId: '635157403647818045',
         target: '#signin',
-        //useSocket: false,
-        onrefreshing: function (key) {
-
-        },
-        onrefreshed: function () {
-
-        },
-        onerror: function (data) {
-            var blocker = document.querySelector('.blocker');
-            while (blocker.firstChild) {
-                blocker.removeChild(blocker.firstChild);
-            }
-            blocker.appendChild(document.createTextNode(data.Message));
-            var memo = document.createElement('div');
-            memo.appendChild(document.createTextNode('Click to get new one!'));
-            blocker.appendChild(memo);
-            blocker.style.display = 'block';
-        },
+        onerror: dim,
         onpassed: function (data) {
             setTimeout(extend, 200);
             MP.profile(data.Token, function (profile) {
@@ -52,16 +46,6 @@ function pageLoad() {
                 elm.appendChild(div)
             });
         },
-        onexpired: function (data) {
-            var blocker = document.querySelector('.blocker');
-            while (blocker.firstChild) {
-                blocker.removeChild(blocker.firstChild);
-            }
-            blocker.appendChild(document.createTextNode(data.Message));
-            var memo = document.createElement('div');
-            memo.appendChild(document.createTextNode('Click to get new one!'));
-            blocker.appendChild(memo);
-            blocker.style.display = 'block';
-        }
+        onexpired: dim
     });
 }
