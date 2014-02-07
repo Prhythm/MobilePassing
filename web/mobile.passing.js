@@ -1,14 +1,20 @@
 ﻿/*!
- * Mobile Passing Library v0.1.4.1
+ * Mobile Passing Library v0.1.4.2
  * http://www.mobilepassing.com/
  *
  * Copyright 2012, 2013 Prhythm Studio, Mobile Passing
  *
- * Date: 2014-01-22T14:16:12.160Z
+ * Date: 2014-02-07T08:59:39.842Z
  */
 (function (window, name) {
-    // Define class MobilePassing & initial settings
+    var console = window['console'] || { debug: function () { }, log: function () { }, info: function () { }, error: function () { } };
+
+    /*
+     * Define class MobilePassing & initial settings
+     */
     var mp = function MobilePassing() {
+        this.version = '0.1.4.2';
+
         this.option({
             //appId: 'application id (digital only)',
             //target: 'target element (dom element or element id)',
@@ -25,7 +31,10 @@
             onexpired: false
         });
     };
-    // Define Guid generator
+
+    /*
+     * Define Guid generator
+     */
     mp.guid = function () {
         function s4() {
             return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
@@ -39,7 +48,14 @@
             }
         }
     };
-    // Define dom event binder
+
+    /*
+     * Define dom event binder
+     * @param element
+     * @param name
+     * @param handler
+     * @param useCapture
+     */
     mp.bind = function (element, name, handler, useCapture) {
         if (addEventListener) {
             element.addEventListener(name, handler, useCapture || false);
@@ -47,7 +63,13 @@
             element.attachEvent(name, handler);
         }
     };
-    // Define dom event remover
+
+    /*
+     * Define dom event remover
+     * @param element
+     * @param name
+     * @param handler
+     */
     mp.unbind = function (element, name, handler) {
         if (removeEventListener) {
             element.removeEventListener(name, handler, false);
@@ -55,7 +77,10 @@
             element.detachEvent(name, handler);
         }
     };
-    // Wrap getter of target element
+
+    /*
+     * Wrap getter of target element
+     */
     mp.getTarget = function () {
         if (String == mp.setting.target.constructor) {
             var t = document.querySelector(mp.setting.target);
@@ -65,7 +90,10 @@
         }
         throw new Error('Unavailable target element:' + mp.settings.target);
     };
-    // XMLHttpRequest generator
+
+    /*
+     *  XMLHttpRequest generator
+     */
     mp.getXHR = function () {
         if (typeof (XMLHttpRequest) == 'undefined') {
             XMLHttpRequest = function () {
@@ -77,7 +105,11 @@
         }
         return new XMLHttpRequest();
     };
-    // Ajax wrapper
+
+    /*
+     * Ajax wrapper
+     * @param option
+     */
     mp.executeAjax = function (option) {
         var s = { async: true };
         if (option && Object == option.constructor) {
@@ -146,7 +178,10 @@
             xhr.send(s.data || null);
         }
     };
-    // WebSocket connector
+
+    /*
+     * WebSocket connector
+     */
     mp.connect = function () {
         if (typeof (WebSocket) != 'undefined') {
             var s = mp.setting;
@@ -194,6 +229,10 @@
             return false;
         }
     };
+
+    /*
+     * Handle websocket connection timeout
+     */
     mp.handleTimeout = function () {
         var ws = mp.setting.socket;
         if (ws.readyState == WebSocket.CONNECTING) {
@@ -201,6 +240,10 @@
             setTimeout(mp.polling, 100);
         }
     };
+
+    /*
+     * Polling request
+     */
     mp.polling = function () {
         var s = mp.setting;
         var p = s.ssl && (!s.port || s.port * 1 == 443) || !s.ssl && (!s.port || s.port * 1 == 80) || s.port;
@@ -236,12 +279,23 @@
     };
 
     /* Public methods */
+
+    /*
+     * Initialize QR code
+     * @param option
+     */
     mp.prototype.init = function (option) {
         var s = mp.setting;
         this.option(option);
         this.refresh();
         return this;
     };
+
+    /*
+     * Renew a QR code
+     * @param key
+     * @param option
+     */
     mp.prototype.refresh = function (key, option) {
         if (option) this.option(option);
 
@@ -287,6 +341,12 @@
 
         return this;
     };
+
+    /*
+     * Set option
+     * @param option
+     * @param value
+     */
     mp.prototype.option = function (option, value) {
         var s = mp.setting = mp.setting || {};
         if (arguments.length == 1 && Object == option.constructor) {
@@ -330,6 +390,13 @@
         }
         return s;
     };
+
+    /*
+     * Request profile data from server
+     * @param token
+     * @param callback
+     * @param error
+     */
     mp.prototype.profile = function (token, callback, error) {
         var s = mp.setting;
         var p = s.ssl && (!s.port || s.port * 1 == 443) || !s.ssl && (!s.port || s.port * 1 == 80) || s.port;
@@ -356,6 +423,11 @@
             }
         });
     }
+
+    /*
+     * Execute XML http request
+     * @param option
+     */
     mp.prototype.ajax = function (option) {
         mp.executeAjax(option);
         return this;
