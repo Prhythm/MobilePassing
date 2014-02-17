@@ -1,28 +1,31 @@
 ﻿/*!
- * Mobile Passing Library v0.1.4.2
- * http://www.mobilepassing.com/
+ * Mobile Passing Clinet Library v0.1.4.5
+ * http://mobilepassing.com/
  *
- * Copyright 2012, 2013 Prhythm Studio, Mobile Passing
+ * Copyright 2012, 2013 Prhythm Studio, Mobile Passing and other contributors
+ * Released under the MIT license
  *
- * Date: 2014-02-07T08:59:39.842Z
+ * Date: 2014-02-17T15:23:35.010Z
  */
 (function (window, name) {
-    var console = window['console'] || { debug: function () { }, log: function () { }, info: function () { }, error: function () { } };
+    var console = window['console'] || { debug: function () { }, log: function () { }, info: function () { }, warm: function () { }, error: function () { } };
 
     /*
      * Define class MobilePassing & initial settings
      */
     var mp = function MobilePassing() {
-        this.version = '0.1.4.2';
+        this.version = '0.1.4.5';
 
         this.option({
             //appId: 'application id (digital only)',
+            //appSecret: 'secret key',
             //target: 'target element (dom element or element id)',
             host: 'mobilepassing.com',
             port: undefined,
             ssl: false,
             useSocket: true,
             socketTimeout: 10000,
+            loadImmediately: true,
             renderType: 'src', // src|background
             onrefreshing: false,
             onrefreshed: false,
@@ -185,6 +188,7 @@
     mp.connect = function () {
         if (typeof (WebSocket) != 'undefined') {
             var s = mp.setting;
+            if (!s.appId) throw new Error('App ID is required!');
             var p = s.ssl && (!s.port || s.port * 1 == 443) || !s.ssl && (!s.port || s.port * 1 == 80) || s.port;
             var url = 'ws' + (s.ssl ? 's' : '') + '://' + s.host + (true == p ? '' : ':' + p) + '/Socket/' + s.appId + '/' + s.key;
             var ws = s.socket = new WebSocket(url);
@@ -223,7 +227,7 @@
             ws.onclose = function () {
                 console.info('Socket ' + url + ' closed');
             };
-            setTimeout(mp.handleTimeout, s.socketTimeout);
+            setTimeout(mp.handleTimeout, s.socketTimeout || 10000);
             return ws;
         } else {
             return false;
@@ -246,17 +250,18 @@
      */
     mp.polling = function () {
         var s = mp.setting;
+        if (!s.appId) throw new Error('App ID is required!');
         var p = s.ssl && (!s.port || s.port * 1 == 443) || !s.ssl && (!s.port || s.port * 1 == 80) || s.port;
         var url = 'http' + (s.ssl ? 's' : '') + '://' + s.host + (true == p ? '' : ':' + p) + '/Token/' + s.appId + '/' + s.key;
         mp.executeAjax({
             url: url,
             headers: { 'Accept': 'application/json' },
-            success: function (data, status, jqXHR) {
+            success: function (data, status, xhr) {
                 if (data && data.Code) {
                     switch (data.Code) {
                         case 200:
                             if (s.onpassed && Function == s.onpassed.constructor) {
-                                s.onpassed(data.Data, jqXHR);
+                                s.onpassed(data.Data, xhr);
                             }
                             break;
                         case 300:
@@ -264,12 +269,12 @@
                             break;
                         case 404:
                             if (s.onexpired && Function == s.onexpired.constructor) {
-                                s.onexpired(data, jqXHR);
+                                s.onexpired(data, xhr);
                             }
                             break;
                         default:
                             if (s.onerror && Function == s.onerror.constructor) {
-                                s.onerror(data, jqXHR);
+                                s.onerror(data, xhr);
                             }
                             break;
                     }
@@ -287,7 +292,7 @@
     mp.prototype.init = function (option) {
         var s = mp.setting;
         this.option(option);
-        this.refresh();
+        if (true == s.loadImmediately) this.refresh();
         return this;
     };
 
@@ -310,6 +315,7 @@
         }
 
         var s = mp.setting;
+        if (!s.appId) throw new Error('App ID is required!');
 
         // onrefreshing
         if (s.onrefreshing && Function == s.onrefreshing.constructor) {
@@ -356,7 +362,7 @@
         } else if (arguments.length == 2 && String == option.constructor) {
             switch (option) {
                 case 'appId':
-                    if (!/^\d+$/.test(value)) throw new Error('Uexpected appId');
+                    if (!/^\d+$/.test(value)) throw new Error('Unexpected appId');
                     s[option] = value;
                     break;
                 case 'port':
@@ -399,29 +405,37 @@
      */
     mp.prototype.profile = function (token, callback, error) {
         var s = mp.setting;
+        if (!s.appSecret) throw new Error('App secret is required!');
+
         var p = s.ssl && (!s.port || s.port * 1 == 443) || !s.ssl && (!s.port || s.port * 1 == 80) || s.port;
         var url = 'http' + (s.ssl ? 's' : '') + '://' + s.host + (true == p ? '' : ':' + p) + '/Profile/' + token;
         mp.executeAjax({
             url: url,
-            headers: { 'Accept': 'application/json' },
-            success: function (data, status, jqXHR) {
+            verb: 'POST',
+            data: JSON.stringify({ appId: s.appId, appSecret: s.appSecret }),
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            success: function (data, status, xhr) {
                 if (data && data.Code) {
                     switch (data.Code) {
                         case 200:
                             if (callback && Function == callback.constructor) {
-                                callback(data.Data, jqXHR);
+                                callback(data.Data, xhr);
                             }
                             break;
                         case 409:
                         default:
                             if (error && Function == error.constructor) {
-                                error(data, jqXHR);
+                                error(data, xhr);
                             }
                             break;
                     }
                 }
             }
         });
+        return this;
     }
 
     /*

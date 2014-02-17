@@ -29,6 +29,7 @@ function dim(data) {
 function pageLoad() {
     MP.init({
         appId: '635157403647818045',
+        appSecret: '0447ffc99ecc46f1a8a86f580364a7d4',
         target: '#signin',
         onerror: dim,
         onpassed: function (data) {
