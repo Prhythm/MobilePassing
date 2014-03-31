@@ -22,7 +22,7 @@
             //target: 'target element (dom element or element id)',
             host: 'mobilepassing.com',
             port: undefined,
-            ssl: false,
+            ssl: true,
             useSocket: true,
             socketTimeout: 10000,
             loadImmediately: true,
