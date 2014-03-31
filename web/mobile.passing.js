@@ -1,11 +1,11 @@
 ﻿/*!
- * Mobile Passing Clinet Library v0.1.4.5
+ * Mobile Passing Clinet Library v0.1.4.6
  * http://mobilepassing.com/
  *
  * Copyright 2012, 2013 Prhythm Studio, Mobile Passing and other contributors
  * Released under the MIT license
  *
- * Date: 2014-02-17T15:23:35.010Z
+ * Date: 2014-02-18T09:11:11.804Z
  */
 (function (window, name) {
     var console = window['console'] || { debug: function () { }, log: function () { }, info: function () { }, warm: function () { }, error: function () { } };
@@ -14,7 +14,7 @@
      * Define class MobilePassing & initial settings
      */
     var mp = function MobilePassing() {
-        this.version = '0.1.4.5';
+        this.version = '0.1.4.6';
 
         this.option({
             //appId: 'application id (digital only)',
@@ -22,7 +22,7 @@
             //target: 'target element (dom element or element id)',
             host: 'mobilepassing.com',
             port: undefined,
-            ssl: true,
+            ssl: undefined,
             useSocket: true,
             socketTimeout: 10000,
             loadImmediately: true,
@@ -183,14 +183,24 @@
     };
 
     /*
+     * Generate url from setting
+     */
+    mp.generateUrl = function () {
+        var s = mp.setting;
+        var schema = s.ssl == undefined ? location.protocol : (s.ssl ? 'https:' : 'http:')
+        var port = (schema == 'https:' && s.port * 1 == 443) || (schema == 'http:' && s.port * 1 == 80) || s.port;
+        return schema + '//' + s.host + (true == port ? '' : ':' + port);
+    }
+
+    /*
      * WebSocket connector
      */
     mp.connect = function () {
         if (typeof (WebSocket) != 'undefined') {
             var s = mp.setting;
             if (!s.appId) throw new Error('App ID is required!');
-            var p = s.ssl && (!s.port || s.port * 1 == 443) || !s.ssl && (!s.port || s.port * 1 == 80) || s.port;
-            var url = 'ws' + (s.ssl ? 's' : '') + '://' + s.host + (true == p ? '' : ':' + p) + '/Socket/' + s.appId + '/' + s.key;
+            var url = mp.generateUrl() + '/Socket/' + s.appId + '/' + s.key;
+            url = 'ws' + url.substring(4);
             var ws = s.socket = new WebSocket(url);
             ws.onopen = function () {
                 console.info('Socket ' + url + ' connected');
@@ -251,8 +261,7 @@
     mp.polling = function () {
         var s = mp.setting;
         if (!s.appId) throw new Error('App ID is required!');
-        var p = s.ssl && (!s.port || s.port * 1 == 443) || !s.ssl && (!s.port || s.port * 1 == 80) || s.port;
-        var url = 'http' + (s.ssl ? 's' : '') + '://' + s.host + (true == p ? '' : ':' + p) + '/Token/' + s.appId + '/' + s.key;
+        var url = mp.generateUrl() + '/Token/' + s.appId + '/' + s.key;
         mp.executeAjax({
             url: url,
             headers: { 'Accept': 'application/json' },
@@ -324,8 +333,7 @@
         }
 
         s.key = key = key || new mp.guid().toString('N');
-        var p = s.ssl && (!s.port || s.port * 1 == 443) || !s.ssl && (!s.port || s.port * 1 == 80) || s.port;
-        var url = 'http' + (s.ssl ? 's' : '') + '://' + s.host + (true == p ? '' : ':' + p) + '/QRCode/' + s.appId + '/' + key;
+        var url = mp.generateUrl() + '/QRCode/' + s.appId + '/' + key;
         switch (s.renderType) {
             case 'src':
                 // Attach image onload event
@@ -371,8 +379,17 @@
                 case 'ssl':
                     if (true == value)
                         s[option] = true;
+                    else if (undefined == value)
+                        s[option] = undefined;
                     else
                         s[option] = false;
+                    break;
+                case 'socketTimeout':
+                    if (!isNaN(value * 1) && value * 1 > 1000) s[option] = value * 1;
+                    break;
+                case 'useSocket':
+                case 'loadImmediately':
+                    s[option] = true == value ? true : false;
                     break;
                 case 'renderType':
                     if ('src' == value || 'background' == value)
@@ -407,8 +424,7 @@
         var s = mp.setting;
         if (!s.appSecret) throw new Error('App secret is required!');
 
-        var p = s.ssl && (!s.port || s.port * 1 == 443) || !s.ssl && (!s.port || s.port * 1 == 80) || s.port;
-        var url = 'http' + (s.ssl ? 's' : '') + '://' + s.host + (true == p ? '' : ':' + p) + '/Profile/' + token;
+        var url = mp.generateUrl() + '/Profile/' + token;
         mp.executeAjax({
             url: url,
             verb: 'POST',
