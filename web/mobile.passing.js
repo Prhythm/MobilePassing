@@ -187,8 +187,8 @@
      */
     mp.generateUrl = function () {
         var s = mp.setting;
-        var schema = s.ssl == undefined ? location.protocol : (s.ssl ? 'https:' : 'http:')
-        var port = (schema == 'https:' && s.port * 1 == 443) || (schema == 'http:' && s.port * 1 == 80) || s.port;
+        var schema = s.ssl == undefined || s.ssl ? 'https:' : 'http:';
+        var port = s.port == undefined || (schema == 'https:' && s.port * 1 == 443) || (schema == 'http:' && s.port * 1 == 80) || s.port;
         return schema + '//' + s.host + (true == port ? '' : ':' + port);
     }
 
@@ -208,11 +208,11 @@
             ws.onmessage = function (evt) {
                 var data = {};
                 try { data = JSON.parse(evt.data); } catch (ex) { }
-                switch (data.Code) {
+                switch (data.code) {
                     case 200:
                         if (s.onpassed && Function == s.onpassed.constructor) {
                             ws.close();
-                            s.onpassed(data.Data);
+                            s.onpassed(data.data);
                         }
                         break;
                     case 300:
@@ -266,11 +266,11 @@
             url: url,
             headers: { 'Accept': 'application/json' },
             success: function (data, status, xhr) {
-                if (data && data.Code) {
-                    switch (data.Code) {
+                if (data && data.code) {
+                    switch (data.code) {
                         case 200:
                             if (s.onpassed && Function == s.onpassed.constructor) {
-                                s.onpassed(data.Data, xhr);
+                                s.onpassed(data.data, xhr);
                             }
                             break;
                         case 300:
@@ -434,11 +434,11 @@
                 'Content-Type': 'application/json'
             },
             success: function (data, status, xhr) {
-                if (data && data.Code) {
-                    switch (data.Code) {
+                if (data && data.code) {
+                    switch (data.code) {
                         case 200:
                             if (callback && Function == callback.constructor) {
-                                callback(data.Data, xhr);
+                                callback(data.data, xhr);
                             }
                             break;
                         case 409:

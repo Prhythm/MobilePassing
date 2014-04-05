@@ -20,7 +20,7 @@ function dim(data) {
     while (blocker.firstChild) {
         blocker.removeChild(blocker.firstChild);
     }
-    blocker.appendChild(document.createTextNode(data.Message));
+    blocker.appendChild(document.createTextNode(data.message));
     var memo = document.createElement('div');
     memo.appendChild(document.createTextNode('Click to get new token!'));
     blocker.appendChild(memo);
@@ -31,17 +31,19 @@ function pageLoad() {
         appId: '635157403647818045',
         appSecret: '0447ffc99ecc46f1a8a86f580364a7d4',
         target: '#signin',
+        ssl: false,
+        useSocket:false,
         onerror: dim,
-        onpassed: function (data) {
+        onpassed: function (ticket) {
             setTimeout(extend, 200);
-            MP.profile(data.Token, function (profile) {
+            MP.profile(ticket.token, function (profile) {
                 var elm = document.querySelector('.inner-radius');
                 while (elm.firstChild) {
                     elm.removeChild(elm.firstChild);
                 }
                 var div = document.createElement('div');
                 div.setAttribute('class', 'welcome');
-                div.appendChild(document.createTextNode('Hi, ' + profile.DisplayName));
+                div.appendChild(document.createTextNode('Hi, ' + profile.displayName));
                 div.appendChild(document.createElement('br'));
                 div.appendChild(document.createTextNode('Welcome to MP Demo'));
                 elm.appendChild(div)
