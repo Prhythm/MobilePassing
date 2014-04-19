@@ -31,8 +31,6 @@ function pageLoad() {
         appId: '635157403647818045',
         appSecret: '0447ffc99ecc46f1a8a86f580364a7d4',
         target: '#signin',
-        ssl: false,
-        useSocket:false,
         onerror: dim,
         onpassed: function (ticket) {
             setTimeout(extend, 200);
