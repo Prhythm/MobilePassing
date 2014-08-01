@@ -22,8 +22,8 @@
             //target: 'target element (dom element or element id)',
             host: 'mobilepassing.com',
             port: undefined,
-            ssl: undefined,
-            useSocket: true,
+            ssl: true,
+            useSocket: false,
             socketTimeout: 10000,
             loadImmediately: true,
             renderType: 'src', // src|background
