@@ -200,7 +200,7 @@
             var s = mp.setting;
             if (!s.appId) throw new Error('App ID is required!');
             var url = mp.generateUrl() + '/Socket/' + s.appId + '/' + s.key;
-            url = 'wss' + url.substring(4);
+            url = 'ws' + url.substring(4);
             var ws = s.socket = new WebSocket(url);
             ws.onopen = function () {
                 console.info('Socket ' + url + ' connected');
